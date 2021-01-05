@@ -92,5 +92,8 @@ let removeNominee = (id) => {
     if(nominateBtn != undefined){
         nominateBtn.disabled = false;
     }
-    
+    let keys = Object.keys(localStorage);
+    if(keys.length == 0){
+        $$("nominations").innerHTML = "<p>No nominations yet!</p>"
+    }
 };
