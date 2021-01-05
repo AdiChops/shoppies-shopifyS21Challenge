@@ -80,16 +80,17 @@ let populateNominees = () => {
 };
 
 let addNominee = (item) => {
-    $$("nominations").innerHTML += `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button id="rem${item["imdbID"]}">Remove</button></p>`;
+    $$("nominations").insertAdjacentHTML( 'beforeend', `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button id="rem${item["imdbID"]}">Remove</button></p>`);
     $$(`rem${item["imdbID"]}`).addEventListener('click', () => {removeNominee(item["imdbID"])});
 };
 
 let removeNominee = (id) => {
     localStorage.removeItem(id);
     let nominateBtn = $$(id);
+    let par = $$(`nom${id}`);
+    par.parentNode.removeChild(par);
     if(nominateBtn != undefined){
         nominateBtn.disabled = false;
     }
-    let par = $$(`nom${id}`);
-    par.parentNode.removeChild(par);
+    
 };
