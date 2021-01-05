@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/index.css">
     <title>The Shoppies</title>
 </head>
 <body>
@@ -12,9 +13,10 @@
             <label for="searchTitle">Movie title</label>
             <input type="text" id="searchTitle" name="searchTitle">
         </div>
-        <div>
+        <div id="moviesDiv">
             <div id="resultsDiv">
                 <h3 id="resultsHeader"></h3>
+                <div id="pageSelection"><select name="pages" id="pages"></select></div>
                 <div id="results"></div>
             </div>
             <div id="nominationsDiv">
