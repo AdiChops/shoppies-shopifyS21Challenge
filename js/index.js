@@ -1,4 +1,9 @@
 let $$ = (id) => { return document.getElementById(id);};
+const MAX_NOMINEES = 5;
+
+addEventListener('load', ()=>{
+    populateNominees();
+});
 
 $$("searchTitle").addEventListener('keyup', ()=>{
     let searchText = $$("searchTitle").value;
@@ -33,7 +38,7 @@ let performSearch = (searchText, p) => {
             let results = "<ul>";
             for(let i in films){
                 let film = films[i];
-                results += `<li>${film["Title"]} (${film["Year"]}) <button name="nominate" value="${i}" id="${film["imdbID"]}"}>Nominate</button></li>`;
+                results += `<li>${film["Title"]} (${film["Year"]}) <button name="nominate" ${disableButton(film["imdbID"])} value="${i}" id="${film["imdbID"]}"}>Nominate</button></li>`;
             }
             results+="</ul>"
             $$("results").innerHTML = results;
@@ -42,11 +47,49 @@ let performSearch = (searchText, p) => {
             for(let n of nominates){
                 n.addEventListener('click', ()=>{
                     let val = films[n.value];
-                    $$("nominations").innerHTML += `<p>${val["Title"]} (${val["Year"]})</p>`;
+                    if($$("nominations").innerHTML.trim() == "<p>No nominations yet!</p>"){
+                        $$("nominations").innerHTML = "";
+                    }
+                    localStorage.setItem(val["imdbID"], encodeURIComponent(JSON.stringify(val)));
+                    addNominee(val);
                     console.log(val);
+                    n.disabled = true;
                 });
             }
         }
     });
     return num;
+};
+
+let disableButton = (movieId) =>{
+    return (localStorage.getItem(movieId) != null || nominationsIsFull())? "disabled":"";
+};
+
+let nominationsIsFull = () =>{
+    return Object.keys(localStorage).length == MAX_NOMINEES;
+};
+
+let populateNominees = () => {
+    let keys = Object.keys(localStorage);
+    if(keys.length != 0){
+        $$("nominations").innerHTML = "";
+    }
+    for(let key of keys){
+        addNominee(JSON.parse(decodeURIComponent(localStorage.getItem(key))));
+    }
+};
+
+let addNominee = (item) => {
+    $$("nominations").innerHTML += `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button id="rem${item["imdbID"]}">Remove</button></p>`;
+    $$(`rem${item["imdbID"]}`).addEventListener('click', () => {removeNominee(item["imdbID"])});
+};
+
+let removeNominee = (id) => {
+    localStorage.removeItem(id);
+    let nominateBtn = $$(id);
+    if(nominateBtn != undefined){
+        nominateBtn.disabled = false;
+    }
+    let par = $$(`nom${id}`);
+    par.parentNode.removeChild(par);
 };
