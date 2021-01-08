@@ -91,8 +91,9 @@ let addNominee = (item) => {
     $$("nominations").insertAdjacentHTML( 'beforeend', `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button class="btn btn-outline-danger btn-sm" title="Remove nomination" id="rem${item["imdbID"]}"><i class="fas fa-times"></i></button></p>`);
     $$(`rem${item["imdbID"]}`).addEventListener('click', () => {removeNominee(item["imdbID"])});
     if(nominationsIsFull()){
-        console.log("true");
+        $("#nomFullModal").modal();
         disableAll();
+        $$("maxNoms").textContent = `${MAX_NOMINEES} nominations reached!`;
     }
 };
 
@@ -118,4 +119,5 @@ let removeNominee = (id) => {
     if(keys.length == 0){
         $$("nominations").innerHTML = "<p>No nominations yet!</p>"
     }
+    $$("maxNoms").textContent = ``;
 };
