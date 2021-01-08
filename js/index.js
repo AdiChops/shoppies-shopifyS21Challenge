@@ -11,6 +11,7 @@ $$("searchTitle").addEventListener('keyup', ()=>{
         $$("pageSelection").style.display = "none";
         $$("resultsHeader").textContent = "";
         $$("results").innerHTML = "";
+        $$("resultsDiv").style.display = "none";
     }
     else{
         $$("resultsHeader").textContent = `Results for "${searchText}"`;
@@ -20,7 +21,8 @@ $$("searchTitle").addEventListener('keyup', ()=>{
         let pagesOptions = new Array(Math.ceil(numResults/10)+1);
         pagesOptions.pop(); // getting rid of page 0
         $$("pages").options = pagesOptions;
-        $$("pageSelestion").style.display = "block";
+        // $$("pageSelestion").style.display = "block";
+        $$("resultsDiv").style.display = "block";
     }
 });
 
@@ -38,7 +40,7 @@ let performSearch = (searchText, p) => {
             let results = "<ul>";
             for(let i in films){
                 let film = films[i];
-                results += `<li>${film["Title"]} (${film["Year"]}) <button name="nominate" ${disableButton(film["imdbID"])} value="${i}" id="${film["imdbID"]}"}>Nominate</button></li>`;
+                results += `<li>${film["Title"]} (${film["Year"]}) <button class="btn btn-outline-success btn-sm" title="Nominate" name="nominate" ${disableButton(film["imdbID"])} value="${i}" id="${film["imdbID"]}"}><i class="fas fa-check"></i></button></li>`;
             }
             results+="</ul>"
             $$("results").innerHTML = results;
@@ -80,7 +82,7 @@ let populateNominees = () => {
 };
 
 let addNominee = (item) => {
-    $$("nominations").insertAdjacentHTML( 'beforeend', `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button id="rem${item["imdbID"]}">Remove</button></p>`);
+    $$("nominations").insertAdjacentHTML( 'beforeend', `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button class="btn btn-outline-danger btn-sm" title="Remove nomination" id="rem${item["imdbID"]}"><i class="fas fa-times"></i></button></p>`);
     $$(`rem${item["imdbID"]}`).addEventListener('click', () => {removeNominee(item["imdbID"])});
 };
 

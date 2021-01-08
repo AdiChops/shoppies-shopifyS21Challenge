@@ -7,10 +7,51 @@ body{
 main{
     display:grid;
     grid-template-rows: auto auto;
+    row-gap: 1em;
+    column-gap: 1em;
+    width:90%;
+    margin-left:auto;
+    margin-right:auto;
 }
+h1{
+    width:90%;
+    margin-top:0.5em;
+    margin-left:auto;
+    margin-right:auto;
+}
+li{
+    padding:0.5em;
+}
+#basic-addon1{
+    height:100%;
+}
+body{
+    background-color:#D0D0D0;
+}
+#searchDiv, #nominationsDiv, #resultsDiv{
+    background-color:white;
+    padding:1em;
+    border-radius: 10px;
+}
+
+#resultsDiv{
+    display:none;
+}
+
+#moviesDiv{
+    column-gap:1em;
+}
+
+#nominationsDiv{
+    margin-top:1em;
+}
+
 @media all and (min-width:768px){
     #moviesDiv{
         display:grid;
         grid-template-columns: auto auto;
+    }
+    #nominationsDiv{
+        margin-top:0;
     }
 }
