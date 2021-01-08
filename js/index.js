@@ -54,7 +54,6 @@ let performSearch = (searchText, p) => {
                     }
                     localStorage.setItem(val["imdbID"], encodeURIComponent(JSON.stringify(val)));
                     addNominee(val);
-                    console.log(val);
                     n.disabled = true;
                 });
             }
@@ -67,8 +66,15 @@ let disableButton = (movieId) =>{
     return (localStorage.getItem(movieId) != null || nominationsIsFull())? "disabled":"";
 };
 
+let disableAll = () =>{
+    let buttons = document.getElementsByName("nominate");
+    for(let button of buttons){
+        button.disabled = true;
+    }
+};
+
 let nominationsIsFull = () =>{
-    return Object.keys(localStorage).length == MAX_NOMINEES;
+    return Object.keys(localStorage).length >= MAX_NOMINEES;
 };
 
 let populateNominees = () => {
@@ -84,6 +90,19 @@ let populateNominees = () => {
 let addNominee = (item) => {
     $$("nominations").insertAdjacentHTML( 'beforeend', `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button class="btn btn-outline-danger btn-sm" title="Remove nomination" id="rem${item["imdbID"]}"><i class="fas fa-times"></i></button></p>`);
     $$(`rem${item["imdbID"]}`).addEventListener('click', () => {removeNominee(item["imdbID"])});
+    if(nominationsIsFull()){
+        console.log("true");
+        disableAll();
+    }
+};
+
+let reEnableAll = () =>{
+    let buttons = document.getElementsByName("nominate");
+    for(let button of buttons){
+        if(localStorage.getItem(button.id) == null){
+            button.disabled = false;
+        }
+    }
 };
 
 let removeNominee = (id) => {
@@ -94,6 +113,7 @@ let removeNominee = (id) => {
     if(nominateBtn != undefined){
         nominateBtn.disabled = false;
     }
+    reEnableAll();
     let keys = Object.keys(localStorage);
     if(keys.length == 0){
         $$("nominations").innerHTML = "<p>No nominations yet!</p>"
