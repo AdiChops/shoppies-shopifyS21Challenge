@@ -1,4 +1,4 @@
-let $$ = (id) => { return document.getElementById(id);};
+let idSelect = (id) => { return document.getElementById(id);};
 const MAX_NOMINEES = 5;
 
 // populating the nominees in localStorage once the page loads
@@ -6,40 +6,47 @@ addEventListener('load', ()=>{
     populateNominees();
 });
 
-$$("searchTitle").addEventListener('keyup', async ()=>{
-    let searchText = $$("searchTitle").value;
+idSelect("searchTitle").addEventListener('keyup', async ()=>{
+    let searchText = idSelect("searchTitle").value;
     if(searchText == ""){
-        $$("pageSelection").style.display = "none";
-        $$("resultsHeader").textContent = "";
-        $$("results").innerHTML = "";
-        $$("resultsDiv").style.display = "none";
+        idSelect("pages").style.display = "none";
+        idSelect("resultsHeader").textContent = "";
+        idSelect("results").innerHTML = "";
+        idSelect("resultsDiv").style.display = "none";
     }
     else{
-        $$("resultsHeader").textContent = `Results for "${searchText}"`;
+        idSelect("resultsHeader").textContent = `Results for "${searchText}"`;
         // perform API call
-        let numResults = await performSearch(searchText, 1);
-        let pagesOptions = new Array(Math.ceil(numResults/10)+1);
-        pagesOptions.pop(); // getting rid of page 0
-        $$("pages").options = pagesOptions;
-        $$("pages").style.display = "block";
-        $$("resultsDiv").style.display = "block";
+        let numResults = await performSearch(searchText);
+        idSelect("pages").innerHTML = "";
+        for(let i=1; i<=Math.ceil(numResults/10); i++){
+            idSelect("pages").innerHTML += `<option value="${i}">Page ${i}</option>`;
+        }
+        if(numResults > 0)
+            idSelect("pages").style.display = "block";
+        idSelect("resultsDiv").style.display = "block";
     }
+});
+
+idSelect("pages").addEventListener('change', async ()=>{
+    let searchText = idSelect("searchTitle").value;
+    await performSearch(searchText, idSelect("pages").value);
 });
 
 /**
  * This function performs the search for the user.
  * @param {*} searchText represents what the user types into the search field
- * @param {*} p represents the page of results that the user would like to view
+ * @param {*} p represents the page of results that the user would like to view, default to 1
  */
-let performSearch = async (searchText, p) => {
+let performSearch = async (searchText, p = 1) => {
     let num = 0;
     // calling the API
-    await fetch(`https://omdbapi.com/?apikey=bf80773c&s=${searchText}&page=${p}`).then((resp) => {
+    await fetch(`https://omdbapi.com/?apikey=bf80773c&s=${searchText}&page=${p}&type=movie`).then((resp) => {
         return resp.json();
     }).then((info)=>{
         if(info["Response"] == "False"){
-            $$("results").textContent = info["Error"];
-            $$("pages").style.display = "none";
+            idSelect("results").textContent = info["Error"];
+            idSelect("pages").style.display = "none";
         } // if invalid call
         else{
             let films = info["Search"];
@@ -49,14 +56,14 @@ let performSearch = async (searchText, p) => {
                 results += `<li>${film["Title"]} (${film["Year"]}) <button class="btn btn-outline-success btn-sm" title="Nominate" name="nominate" ${disableButton(film["imdbID"])} value="${i}" id="${film["imdbID"]}"}><i class="fas fa-check"></i></button></li>`;
             }
             results+="</ul>"
-            $$("results").innerHTML = results;
+            idSelect("results").innerHTML = results;
             num = parseInt(info["totalResults"]);
             let nominates = document.getElementsByName("nominate");
             for(let n of nominates){
                 n.addEventListener('click', ()=>{
                     let val = films[n.value];
-                    if($$("nominations").innerHTML.trim() == "<p>No nominations yet!</p>"){
-                        $$("nominations").innerHTML = "";
+                    if(idSelect("nominations").innerHTML.trim() == "<p>No nominations yet!</p>"){
+                        idSelect("nominations").innerHTML = "";
                     }
                     localStorage.setItem(val["imdbID"], encodeURIComponent(JSON.stringify(val)));
                     addNominee(val);
@@ -102,7 +109,7 @@ let nominationsIsFull = () =>{
 let populateNominees = () => {
     let keys = Object.keys(localStorage);
     if(keys.length != 0){
-        $$("nominations").innerHTML = "";
+        idSelect("nominations").innerHTML = "";
     }
     for(let key of keys){
         addNominee(JSON.parse(decodeURIComponent(localStorage.getItem(key))));
@@ -115,13 +122,13 @@ let populateNominees = () => {
  * @param {*} item represents the movie getting nominated
  */
 let addNominee = (item) => {
-    $$("nominations").insertAdjacentHTML( 'beforeend', `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button class="btn btn-outline-danger btn-sm" title="Remove nomination" id="rem${item["imdbID"]}"><i class="fas fa-times"></i></button></p>`);
-    $$(`rem${item["imdbID"]}`).addEventListener('click', () => {removeNominee(item["imdbID"])});
+    idSelect("nominations").insertAdjacentHTML( 'beforeend', `<p id="nom${item["imdbID"]}">${item["Title"]} (${item["Year"]}) <button class="btn btn-outline-danger btn-sm" title="Remove nomination" id="rem${item["imdbID"]}"><i class="fas fa-times"></i></button></p>`);
+    idSelect(`rem${item["imdbID"]}`).addEventListener('click', () => {removeNominee(item["imdbID"])});
     // Checking if more nominations can be displayed
     if(nominationsIsFull()){
         $("#nomFullModal").modal(); //displaying modal
         disableAll(); // disabling all "nominate" buttons
-        $$("maxNoms").textContent = `${MAX_NOMINEES} nominations reached!`; // displaying badge
+        idSelect("maxNoms").textContent = `${MAX_NOMINEES} nominations reached!`; // displaying badge
     }
 };
 
@@ -143,8 +150,8 @@ let reEnableAll = () =>{
  */
 let removeNominee = (id) => {
     localStorage.removeItem(id);
-    let nominateBtn = $$(id);
-    let par = $$(`nom${id}`);
+    let nominateBtn = idSelect(id);
+    let par = idSelect(`nom${id}`);
     par.parentNode.removeChild(par);
     if(nominateBtn != undefined){
         nominateBtn.disabled = false;
@@ -153,7 +160,7 @@ let removeNominee = (id) => {
     reEnableAll();
     let keys = Object.keys(localStorage);
     if(keys.length == 0){
-        $$("nominations").innerHTML = "<p>No nominations yet!</p>"
+        idSelect("nominations").innerHTML = "<p>No nominations yet!</p>"
     }
-    $$("maxNoms").textContent = ``;
+    idSelect("maxNoms").textContent = ``;
 };
