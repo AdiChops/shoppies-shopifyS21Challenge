@@ -1,5 +1,6 @@
 let idSelect = (id) => { return document.getElementById(id);};
 const MAX_NOMINEES = 5;
+const NUM_RESULTS_PER_PAGE = 10;
 
 // populating the nominees in localStorage once the page loads
 addEventListener('load', ()=>{
@@ -19,7 +20,7 @@ idSelect("searchTitle").addEventListener('keyup', async ()=>{
         // perform API call
         let numResults = await performSearch(searchText);
         idSelect("pages").innerHTML = "";
-        for(let i=1; i<=Math.ceil(numResults/10); i++){
+        for(let i=1; i<=Math.ceil(numResults/NUM_RESULTS_PER_PAGE); i++){
             idSelect("pages").innerHTML += `<option value="${i}">Page ${i}</option>`;
         }
         if(numResults > 0)
